@@ -1,18 +1,20 @@
-from mininet.topo import Topo
-from mininet.net import Mininet
-from mininet.node import OVSBridge
-from mininet.node import Node
-from mininet.log import setLogLevel, info
-from mininet.cli import CLI
-from scapy.all import *
-from scapy.all import sniff
+from flask import Flask, request
 
-def callbackFunction(packet):
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def receive_message():
     try:
-        print(packet.summary())
-    except KeyboardInterrupt:
-        pass
+        message = request.form['message']
+        # Aqui você pode processar a mensagem recebida da maneira desejada
+        # (por exemplo, salvar em um arquivo, exibir no console, etc.)
+        print(f'Mensagem recebida: {message}')
+
+        # Responda com uma mensagem de confirmação
+        return 'Mensagem recebida com sucesso!'
+    except Exception as e:
+        print(f'Erro ao processar a mensagem: {e}')
+        return 'Erro ao processar a mensagem'
 
 if __name__ == '__main__':
-    setLogLevel( 'info' )
-    sniff(prn=callbackFunction)
+    app.run(host='0.0.0.0', port=80)

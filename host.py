@@ -1,15 +1,16 @@
 from mininet.topo import Topo
 from mininet.net import Mininet
 from scapy.all import *
-import threading
 import requests  # Importe a biblioteca requests
-from mininet.cli import CLI
 
 def send_http_request(server_ip, message):
     url = f'http://{server_ip}'
     data = {'message': message}
-    response = requests.post(url, data=data)
-    print(f'Resposta do servidor: {response.text}')
+    try:
+        response = requests.post(url, data=data)
+        print(f'Resposta do servidor: {response.text}')
+    except requests.exceptions.RequestException as e:
+        print(f'Erro ao enviar a mensagem para o servidor: {e}')
 
 if __name__ == '__main__':
     # Endereço IP do servidor
@@ -28,5 +29,5 @@ if __name__ == '__main__':
     exit(0)
 
     # Pare a thread de captura quando o usuário sair
-    capture_thread.join()
+    #capture_thread.join()
 
