@@ -50,10 +50,10 @@ def process_http(packet):
             return
 
         result_packet = replace_badwords(packet)
-        if result_packet and packet.sniffed_on != result_packet.sniffed_on:
+        if (result_packet):
             print("Original Packet: ", packet.show())
             print("Modified Packet:", result_packet.show())
-            sendp(result_packet, iface=packet.sniffed_on, verbose=False)
+            sendp(result_packet, iface="r-eth1", verbose=False)
     except KeyboardInterrupt:
         pass
 
