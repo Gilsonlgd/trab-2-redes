@@ -6,7 +6,7 @@ blocked_words = ["word1", "word2", "word3"]
 replacement_word = "REPLACEMENT"
 
 def supports_packet(packet):
-    return packet.haslayer(IP) and packet.haslayer(TCP) and packet.haslayer(Raw) or not packet.sniffed_on == 'r-eth1'
+    return packet.haslayer(IP) and packet.haslayer(TCP) and packet.haslayer(Raw)
 
 def is_sent_packet(packet):
     return packet[Ether].src == get_if_hwaddr(packet.sniffed_on)
@@ -44,12 +44,12 @@ def process_http(packet):
             return
         
         result_packet = replace_badwords(packet)
-        print("Original Packet: ", packet.show())
-        print("Modified Packet:", result_packet.show())
-        
-        sendp(result_packet, iface="r-eth1", verbose=False)
+        if (result_packet):
+            print("Original Packet: ", packet.show())
+            print("Modified Packet:", result_packet.show())
+            sendp(result_packet, iface="r-eth1", verbose=False)
     except KeyboardInterrupt:
         pass
 
 if __name__ == '__main__':
-    sniff(iface=["r-eth0"], prn=process_http)
+    sniff(iface=["r-eth0", "r-eth1"], prn=process_http)
