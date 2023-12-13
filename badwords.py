@@ -1,4 +1,5 @@
 from scapy.all import *
+from scapy.layers.inet import IP, TCP
 
 # Define the words to be replaced
 blocked_words = ["word1", "word2", "word3"]
@@ -10,32 +11,25 @@ def supports_packet(packet):
 def is_sent_packet(packet):
     return packet[Ether].src == get_if_hwaddr(packet.sniffed_on)
 
-def substitute_badwords(payload: bytes):
-    payload_cp = payload.decode('utf-8')
-    for word in blocked_words:
-        payload_cp = payload_cp.replace(word, replacement_word)
-    return bytes(payload_cp, 'utf-8')
-
 def recalc_check_sum(pkt: Packet):
     del pkt[IP].chksum
     del pkt[IP].payload.chksum
     return pkt.__class__(bytes(pkt))
 
+def substitute_badwords(payload: str):
+    payload_cpy = payload
+    for word in blocked_words:
+        payload_cpy = payload_cpy.replace(word, replacement_word)
+    return payload_cpy
+
 def replace_badwords(packet):
-    if TCP in packet and Raw in packet:
-        tcp_options = packet[TCP].options
-
-        # Check if the modification option is already present
-        if not any(opt[0] == 99 for opt in tcp_options):
-            payload = bytes(packet[TCP].payload.load)
-            result = substitute_badwords(payload)
-
-            packet_cp = packet.copy()
-            packet_cp[TCP].payload = Raw(result)
-            packet_cp[IP].id += 1  # Increment the IP ID to avoid checksum problems
-            # Add a custom TCP option to indicate modification
-            packet_cp[TCP].options = [(99, b'modified')]
-            return recalc_check_sum(packet_cp)
+    if TCP in packet and packet[TCP].payload:
+        payload = packet[TCP].payload.load.decode('utf-8')
+        result = bytes(substitute_badwords(payload), 'utf-8')
+        
+        packet_cpy = packet.copy()
+        packet_cpy[TCP].payload = Raw(result)
+        return recalc_check_sum(packet_cpy)
     return packet
 
 def process_http(packet):
@@ -45,12 +39,12 @@ def process_http(packet):
 
         if not supports_packet(packet):
             return
-
+        
         if is_sent_packet(packet):
             return
-
+        
         result_packet = replace_badwords(packet)
-        if (result_packet):
+        if result_packet:
             print("Original Packet: ", packet.show())
             print("Modified Packet:", result_packet.show())
             sendp(result_packet, iface="r-eth1", verbose=False)
@@ -58,4 +52,4 @@ def process_http(packet):
         pass
 
 if __name__ == '__main__':
-    sniff(iface=["r-eth0", "r-eth1"], prn=process_http)
+    sniff(iface=["r-eth0"], prn=process_http)
