@@ -1,6 +1,7 @@
 from scapy.all import *
 from scapy.all import Raw
 from threading import Thread
+import time
 
 import requests
 
@@ -47,11 +48,16 @@ def process_http(packet):
         if is_sent_packet(packet):
             return
         
+        start_time = time.time()
         result_packet = replace_badwords(packet)
+        end_time = time.time()
         if result_packet:
-            
             # Send the modified packet directly to the server
             requests.post(server_url, data={'message': repr(result_packet)})
+        elapsed_time = end_time - start_time
+        print(f"Tempo de execução: {elapsed_time} segundos")
+        with open('exec_time.txt', 'a') as file:
+            file.write(elapsed_time + '\n')
     except KeyboardInterrupt:
         pass
 
