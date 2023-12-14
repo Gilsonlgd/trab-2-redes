@@ -1,10 +1,11 @@
 from scapy.all import *
 from scapy.all import Raw
+from threading import Thread
 
 import requests
 
 # Define the words to be replaced
-blocked_words = ["word1", "word2", "word3", "xereca", "pinto", "rola"]
+blocked_words = []
 replacement_char = "*"
 server_url = "http://8.8.8.8"
 
@@ -54,5 +55,38 @@ def process_http(packet):
     except KeyboardInterrupt:
         pass
 
-if __name__ == '__main__':
+def scapy_sniffer():
     sniff(iface=["r-eth0"], prn=process_http)
+
+def user_input_thread():
+    global blocked_words
+    while True:
+        user_input = input("Digite uma palavra para bloquear (ou 'exit' para sair): ")
+        if user_input.lower() == 'exit':
+            break
+
+        if user_input not in blocked_words:
+            blocked_words.append(user_input)
+            print(f'A palavra "{user_input}" foi adicionada à lista de badwords.')
+            with open('blocked_words.txt', 'a') as file:
+                file.write(user_input + '\n')
+        else:
+            print(f'A palavra "{user_input}" já está na lista de badwords.')
+            
+def read_blocked_words_from_file():
+    try:
+        with open('blocked_words.txt', 'r') as file:
+            return [line.strip() for line in file]
+    except FileNotFoundError:
+        return []
+
+if __name__ == '__main__':
+    scapy_thread = Thread(target=scapy_sniffer)
+    scapy_thread.start()
+
+    blocked_words = read_blocked_words_from_file()
+    user_input_thread = Thread(target=user_input_thread)
+    user_input_thread.start()
+
+    scapy_thread.join()
+    user_input_thread.join()
