@@ -5,7 +5,7 @@ import requests
 
 # Define the words to be replaced
 blocked_words = ["word1", "word2", "word3", "xereca", "pinto", "rola"]
-replacement_char = "ranieri"
+replacement_char = "*"
 server_url = "http://8.8.8.8"
 
 def supports_packet(packet):
