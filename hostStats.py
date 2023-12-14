@@ -22,11 +22,12 @@ def send_http_request(server_ip, message, resultados):
         print(f'Erro ao enviar a mensagem para o servidor: {e}')
 
 def main():
+    start_time = time.time()
     # Endereço IP do servidor
     server_ip = '8.8.8.8'
 
     # Número total de solicitações a serem feitas
-    num_solicitacoes = 100
+    num_solicitacoes = 1000
 
     # Lista para armazenar os tempos de resposta
     tempos_resposta = []
@@ -41,10 +42,10 @@ def main():
     # Aguarda todas as threads terminarem
     for thread in threads:
         thread.join()
-
+    end_time = time.time()
     # Calcula estatísticas
-    tempo_total = sum(tempos_resposta)
-    tempo_medio = tempo_total / num_solicitacoes
+    tempo_total = end_time - start_time
+    tempo_medio = sum(tempos_resposta) / num_solicitacoes
     tempo_minimo = min(tempos_resposta)
     tempo_maximo = max(tempos_resposta)
     

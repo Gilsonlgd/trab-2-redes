@@ -3,9 +3,11 @@ from flask import Flask, request
 app = Flask(__name__)
 
 accumulated_packets = []
+count = 0
 
 @app.route('/', methods=['POST'])
 def receive_message():
+    global count
     try:
         # Access the 'message' parameter from the POST request
         modified_packet = request.form['message']
@@ -17,6 +19,7 @@ def receive_message():
             # Extract the content after 'message='
             message_content = modified_packet[message_index + len('message='):].strip()
             print(f'Message Content: {message_content}')
+            count = count + 1
 
             return 'Mensagem recebida com sucesso!'
         else:
@@ -32,3 +35,4 @@ def receive_message():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
+    print("Numero de requisições recebidas: " + str(count))
