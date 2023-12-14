@@ -2,16 +2,30 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
+accumulated_packets = []
+
 @app.route('/', methods=['POST'])
 def receive_message():
     try:
-        message = request.form['message']
-        # Aqui você pode processar a mensagem recebida da maneira desejada
-        # (por exemplo, salvar em um arquivo, exibir no console, etc.)
-        print(f'Mensagem recebida: {message}')
+        # Access the 'message' parameter from the POST request
+        modified_packet = request.form['message']
+        
+        # Find the index of 'message=' in the modified packet
+        message_index = modified_packet.find('message=')
 
-        # Responda com uma mensagem de confirmação
-        return 'Mensagem recebida com sucesso!'
+        if message_index != -1:
+            # Extract the content after 'message='
+            message_content = modified_packet[message_index + len('message='):].strip()
+            print(f'Message Content: {message_content}')
+
+            return 'Mensagem recebida com sucesso!'
+        else:
+            accumulated_packets.append(modified_packet)
+            if accumulated_packets:                
+                accumulated_packets.clear()
+                return 'Mensagem recebida com sucesso!'
+            
+            return 'Aguardando mais pacotes...'
     except Exception as e:
         print(f'Erro ao processar a mensagem: {e}')
         return 'Erro ao processar a mensagem'
