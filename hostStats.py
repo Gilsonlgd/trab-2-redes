@@ -52,7 +52,7 @@ def main():
     total_pacotes_transmitidos = len(tempos_resposta) * 2
     taxa_pacotes_por_segundo = total_pacotes_transmitidos / tempo_total if tempo_total > 0 else 0
     
-    total_bytes_transmitidos = total_pacotes_transmitidos * messageLen
+    total_bytes_transmitidos = num_solicitacoes * messageLen
     taxa_transferencia = total_bytes_transmitidos / tempo_total if tempo_total > 0 else 0
     
     # Escreve estatísticas em um arquivo

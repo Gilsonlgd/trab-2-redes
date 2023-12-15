@@ -80,6 +80,9 @@ def user_input_thread():
                 file.write(user_input + '\n')
         else:
             print(f'A palavra "{user_input}" já está na lista de badwords.')
+    lost_time_mean = sum(lost_time) / len(lost_time)
+    with open('lost_time.txt', 'w') as file:
+        file.write(str(lost_time_mean) + '\n')
             
 def read_blocked_words_from_file():
     try:
@@ -98,7 +101,3 @@ if __name__ == '__main__':
 
     scapy_thread.join()
     user_input_thread.join()
-    
-    lost_time_mean = sum(lost_time) / len(lost_time)
-    with open('lost_time.txt', 'a') as file:
-        file.write(str(lost_time_mean) + '\n')
