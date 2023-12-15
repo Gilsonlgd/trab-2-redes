@@ -56,7 +56,7 @@ def main():
     taxa_transferencia = total_bytes_transmitidos / tempo_total if tempo_total > 0 else 0
     
     # Escreve estatísticas em um arquivo
-    with open('estatisticas.txt', 'a') as arquivo:
+    with open('estatisticas.txt', 'w') as arquivo:
         arquivo.write(f"Total de solicitações: {num_solicitacoes}\n")
         arquivo.write(f"Tempo total: {tempo_total:.2f} segundos\n")
         arquivo.write(f"Tempo médio por solicitação: {tempo_medio:.4f} segundos\n")

@@ -9,6 +9,7 @@ import requests
 blocked_words = []
 replacement_char = "*"
 server_url = "http://8.8.8.8"
+lost_time = []
 
 def supports_packet(packet):
     return packet.haslayer(IP) and packet.haslayer(TCP) and packet.haslayer(Raw)
@@ -48,12 +49,13 @@ def process_http(packet):
         if is_sent_packet(packet):
             return
         
-        #start_time = time.time()
+        start_time = time.time()
         result_packet = replace_badwords(packet)
-        #end_time = time.time()
+        end_time = time.time()
         if result_packet:
             # Send the modified packet directly to the server
             requests.post(server_url, data={'message': repr(result_packet)})
+            lost_time.append(end_time - start_time)
         #elapsed_time = end_time - start_time
         #print(f"Tempo de execução: {elapsed_time} segundos")
         #with open('exec_time.txt', 'a') as file:
@@ -96,3 +98,7 @@ if __name__ == '__main__':
 
     scapy_thread.join()
     user_input_thread.join()
+    
+    lost_time_mean = sum(lost_time) / len(lost_time)
+    with open('lost_time.txt', 'a') as file:
+        file.write(str(lost_time_mean) + '\n')
